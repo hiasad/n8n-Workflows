@@ -1,0 +1,139 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "path": "stock-price",
+        "options": {}
+      },
+      "id": "c89aee28-5627-4e84-9df0-299795919f4d",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        -160
+      ],
+      "webhookId": "12345678-1234-1234-1234-123456789abc"
+    },
+    {
+      "parameters": {
+        "functionCode": "const symbol = $json.query.symbol || '';\nreturn [{ json: { symbol: symbol.trim().toUpperCase() } }];"
+      },
+      "id": "0edd3bdc-7359-46a1-8503-e8178d32740f",
+      "name": "Extract Symbol",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.alphavantage.co/query",
+        "options": {},
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "function",
+              "value": "GLOBAL_QUOTE"
+            },
+            {
+              "name": "symbol",
+              "value": "={{$json[\"symbol\"]}}"
+            },
+            {
+              "name": "apikey",
+              "value": "=BABB74VP4V7FKJ4X"
+            }
+          ]
+        }
+      },
+      "id": "184adb2f-e298-4ebb-ae53-57986530126e",
+      "name": "Get Stock Price",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const quote = $json[\"Global Quote\"] || {};\nconst price = quote[\"05. price\"] || \"N/A\";\nconst date = quote[\"07. latest trading day\"] || \"N/A\";\nreturn [{ json: { price, date } }];"
+      },
+      "id": "560698b6-4c7d-4df1-8839-8d7df8af369d",
+      "name": "Format Output",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b4e9ac6a-8b74-40f8-ab7f-d1c14c916e25",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -160
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Symbol",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Symbol": {
+      "main": [
+        [
+          {
+            "node": "Get Stock Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Stock Price": {
+      "main": [
+        [
+          {
+            "node": "Format Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Output": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bbc636d44d110f26208568f7e47ebf3b09106dbdd3095774808dc2293769d4e4"
+  }
+}
