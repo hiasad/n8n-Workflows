@@ -1,0 +1,182 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cc721d10-44af-45eb-99fe-f4455e3f8861",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Write a 95–130 word Facebook post for REALTORS in North Georgia (Cumming, Alpharetta, Gainesville, Dahlonega, Blue Ridge). \nRequirements:\n- Start with a one-sentence hook (not a title).\n- 3–4 sentences total: hook + 1–2 insights + one “Tip:” line.\n- No emojis, no links, no headings.\n- End with 3–4 local hashtags (e.g., #NorthGeorgiaRealEstate #CummingGA #Alpharetta #GainesvilleGA #Dahlonega #BlueRidgeGA).\nOutput PLAIN TEXT only."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        208,
+        0
+      ],
+      "id": "efa9aa6b-4549-4369-a0be-cb28a2af5f31",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "4r7dHz4xga45BpMz",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7daef16c-8209-4175-86b2-289d2b4533ea",
+              "name": "message",
+              "value": "={{ $json.message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        0
+      ],
+      "id": "0b2e10a0-a879-456b-b04c-33210239b43e",
+      "name": "Set Message"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v23.0",
+        "node": "539174142618682",
+        "edge": "feed",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "message",
+                "value": "={{ $json.message }}"
+              },
+              {
+                "name": "access_token",
+                "value": "EAAdBTTIheZBABPZAiDlDZBEHwt9w3jtIEL4MOcHgy8TXBoi0OZCI7aux9jZBoDXGKsLfzZAotHisb6rZBbCERtkOKjGZCNf9Vf5ALyYk2aMwMOFBgk0dOH0hpPjVtDl4ti89q7czuJk0nVOAhyTVSFQEN4gqS21M66UUiDXFaWKLJFQZAtyfsQciyvQn9izGDU1fWZCAZDZD"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        800,
+        0
+      ],
+      "id": "26260a6a-f67a-43e5-b04d-b2e375ac0bc6",
+      "name": "Facebook Graph API",
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "rDqAyF68eWbhrp1L",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "hiasad@gmail.com",
+        "subject": "New Post Made to Facebook",
+        "message": "New Post Made to Facebook",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "7393fb2d-7b2c-4610-b0fc-7b0d53c944a0",
+      "name": "Send a message",
+      "webhookId": "fd883fcf-8fd4-4378-aff6-e81738aceeef",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "J0V21tL3R3cfR6ro",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Set Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Message": {
+      "main": [
+        [
+          {
+            "node": "Facebook Graph API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook Graph API": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "69f1d42d576cbec3b0ff191e527169f92dce7fd8a7de5d6323c2a36d81b7a276"
+  }
+}
